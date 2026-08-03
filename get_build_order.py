@@ -121,18 +121,12 @@ def main() -> None:
     for package in packages:
         resolve_package_dependencies(current_package=package, packages=packages)
 
-    build_orders = []
+    build_order = []
     for package in packages:
-        build_order = package.get_build_order()
-        build_orders.append(build_order)
-        print(build_order)
-    merged_build_orders = []
-    for build_order in build_orders:
-        for i, dependency in enumerate(build_order):
-            if dependency not in merged_build_orders:
-                merged_build_orders.insert(i, dependency)
-    print()
-    print(json.dumps(merged_build_orders))
+        for dependency in package.get_build_order():
+            if dependency not in build_order:
+                build_order.append(dependency)
+    print(json.dumps(build_order))
 
 
 
