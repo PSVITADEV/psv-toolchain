@@ -1,0 +1,31 @@
+pkgname=psv-sdk
+pkgver=0.1
+pkgrel=1
+pkgdesc="Binutils and GDB with PS Vita patches applied."
+arch=(
+  "alpine_x86_64"
+  "debian_x86_64"
+  "fedora_x86_64"
+  "macos_arm64"
+  "macos_x86_64"
+  "ubuntu_aarch64"
+  "ubuntu_x86_64"
+)
+url="https://github.com/pspdev/binutils-gdb"
+license=('GPL-2.0-only')
+groups=('psv-toolchain')
+depends=('psv-binutils' 'psv-gcc')
+makedepends=()
+optdepends=()
+provides=()
+source=()
+sha256sums=()
+
+prepare() {
+}
+
+build() {
+}
+
+package() {
+}
