@@ -31,6 +31,7 @@ jobs:
     outputs:
       build_list: ${{ steps.set-matrix.outputs.build_list }}
 
+
   build:
     needs: [prepare_jobs]
     runs-on: ubuntu-latest
@@ -51,7 +52,7 @@ jobs:
     - name: Install Alpine build dependencies
       if: startsWith(matrix.os, 'alpine')
       run: |
-        apk add wget wget build-base bash pkgconfig libarchive-tools  git sudo fakeroot curl gpgme
+        apk add wget wget build-base bash pkgconfig libarchive-tools  git sudo fakeroot curl gpgme libarchive
         adduser -D -s /bin/bash build
 
     - name: Install Fedora build dependencies
