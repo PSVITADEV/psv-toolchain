@@ -82,7 +82,7 @@ jobs:
         export PSVITADEV="${PWD}/psvitadev"
         export PATH="${PATH}:${PSVITADEV}/bin"
         chown -R build:build .
-        for package in "${{ needs.prepare_jobs.outputs.build_list }}""; do
+        for package in "${{ needs.prepare_jobs.outputs.build_list }}"; do
           cd "${package}"
           sudo -u build PATH="${PATH}" PSVITADEV="${PSVITADEV}" psv-makepkg --noconfirm --noprogress -i
           cd ..
@@ -146,7 +146,7 @@ jobs:
       run: |
         export PSVITADEV="${PWD}/psvitadev"
         export PATH="${PATH}:${PSVITADEV}/bin"
-        for package in "${{ needs.prepare_jobs.outputs.build_list }}""; do
+        for package in "${{ needs.prepare_jobs.outputs.build_list }}"; do
           cd "${package}"
           sudo PATH="${PATH}" PSVITADEV="${PSVITADEV}" psv-makepkg --noconfirm --noprogress --asroot -i
           cd ..
