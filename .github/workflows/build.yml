@@ -1,0 +1,200 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  prepare_jobs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download get-arch script
+        run: |
+          curl -o get-arch https://psvitadev.github.io/psv-pacman/get-arch
+      - uses: actions/upload-artifact@v7
+        with:
+          name: get-arch
+          path: get-arch
+      - name: Generate build list
+        id: set-matrix
+        run: |
+          echo "build_list=$(./get_build_order.py)" >> $GITHUB_OUTPUT
+          cat $GITHUB_OUTPUT
+    outputs:
+      build_list: ${{ steps.set-matrix.outputs.build_list }}
+
+  build:
+    needs: [prepare_jobs]
+    runs-on: ubuntu-latest
+    container: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [alpine:latest, fedora:latest, debian:latest]
+      fail-fast: false
+
+    steps:
+    - name: Install Debian build dependencies
+      if: startsWith(matrix.os, 'debian')
+      run: |
+        apt-get update
+        apt-get install -y wget adduser build-essential pkgconf curl libcurl4 libarchive-tools git sudo
+        adduser --system --group build
+
+    - name: Install Alpine build dependencies
+      if: startsWith(matrix.os, 'alpine')
+      run: |
+        apk add wget wget build-base bash pkgconfig libarchive-tools  git sudo fakeroot curl
+        adduser -D -s /bin/bash build
+
+    - name: Install Fedora build dependencies
+      if: startsWith(matrix.os, 'fedora')
+      run: |
+        dnf -y install gcc meson bsdtar pkgconf git sudo fakeroot curl
+        useradd build
+
+    - uses: actions/checkout@v6
+
+    - uses: actions/download-artifact@v8
+      with:
+        name: get-arch
+
+    - name: Set ARCH variable
+      run: |
+        chmod +x get-arch
+        ARCH="$(./get-arch)"
+        echo "ARCH=${ARCH}" >> $GITHUB_ENV
+
+    - name: Downloado psv-pacman
+      run: |
+        curl -o psvitadev.tar.gz https://psvitadev.github.io/psv-pacman/${{ env.ARCH }}/psvitadev.tar.gz
+        tar -xvf psvitadev.tar.gz
+
+    - name: Build packages
+      run: |
+        export PSVITADEV="${PWD}/psvitadev"
+        export PATH="${PATH}:${PSVITADEV}/bin"
+        chown -R build:build .
+        for package in ${{ fromJson(needs.prepare_jobs.outputs.build_list) }}; do
+          cd "${package}"
+          sudo -u build PATH="${PATH}" PSVITADEV="${PSVITADEV}" psv-makepkg --noconfirm --noprogress -i
+          cd ..
+        done
+
+    - name: Create repo files
+      run: |
+        mv */*.pkg.tar.gz ./
+        export PSVITADEV="${PWD}/psvitadev"
+        ${PSVITADEV}/share/pacman/bin/repo-add psv-toolchain.db.tar.gz *.pkg.tar.gz
+        mv psv-toolchain.db.tar.gz psv-toolchain.db
+        mv psv-toolchain.files.tar.gz psv-toolchain.files
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: ${{ env.ARCH }}
+        path: |
+          *.pkg.tar.gz
+          psv-toolchain.db
+          psv-toolchain.files
+
+
+  build-VM:
+    needs: [prepare_jobs]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm, macos-latest, macos-15-intel]
+      fail-fast: false
+
+    steps:
+    - name: Install Ubuntu build dependencies
+      if: startsWith(matrix.os, 'ubuntu')
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install meson libcurl4-openssl-dev libarchive-tools libarchive-dev libgpgme-dev
+
+    - name: Install Mac build dependencies
+      if: startsWith(matrix.os, 'macos')
+      run: |
+        brew install bash meson gnu-sed libarchive gpgme
+
+    - uses: actions/checkout@v6
+
+    - uses: actions/download-artifact@v8
+      with:
+        name: get-arch
+
+    - name: Set ARCH variable
+      run: |
+        chmod +x get-arch
+        ARCH="$(./get-arch)"
+        echo "ARCH=${ARCH}" >> $GITHUB_ENV
+
+    - name: Downloado psv-pacman
+      run: |
+        curl -o psvitadev.tar.gz https://psvitadev.github.io/psv-pacman/${{ env.ARCH }}/psvitadev.tar.gz
+        tar -xvf psvitadev.tar.gz
+
+    - name: Build packages
+      run: |
+        export PSVITADEV="${PWD}/psvitadev"
+        export PATH="${PATH}:${PSVITADEV}/bin"
+        for package in ${{ fromJson(needs.prepare_jobs.outputs.build_list) }}; do
+          cd "${package}"
+          sudo PATH="${PATH}" PSVITADEV="${PSVITADEV}" psv-makepkg --noconfirm --noprogress --asroot -i
+          cd ..
+        done
+
+    - name: Create repo files
+      run: |
+        mv */*.pkg.tar.gz ./
+        export PSVITADEV=${PWD}/psvitadev
+        ${PSVITADEV}/share/pacman/bin/repo-add psv-toolchain.db.tar.gz *.pkg.tar.gz
+        mv psv-toolchain.db.tar.gz psv-toolchain.db
+        mv psv-toolchain.files.tar.gz psv-toolchain.files
+
+    - uses: actions/upload-artifact@v7
+      with:
+        name: ${{ env.ARCH }}
+        path: |
+          *.pkg.tar.gz
+          psv-toolchain.db
+          psv-toolchain.files
+
+
+  package-repo:
+    if: contains(github.ref,'refs/heads/main')
+    needs: [build, build-VM]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v8
+      with:
+        path: repo/
+    - name: Upload repo artifact
+      id: deployment
+      uses: actions/upload-pages-artifact@v5
+      with:
+        path: repo/
+
+
+  publish-repo:
+    if: contains(github.ref,'refs/heads/main')
+    needs: [package-repo]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
