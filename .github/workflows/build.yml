@@ -182,6 +182,8 @@ jobs:
       uses: actions/download-artifact@v8
       with:
         path: repo/
+    - name: Remove get-arch artifact
+      run: rm -f repo/get-arch
     - name: Upload repo artifact
       id: deployment
       uses: actions/upload-pages-artifact@v5
