@@ -126,7 +126,7 @@ def main() -> None:
         for dependency in package.get_build_order():
             if dependency not in build_order:
                 build_order.append(dependency)
-    print(json.dumps(build_order))
+    print(" ".join(build_order))
 
 
 
