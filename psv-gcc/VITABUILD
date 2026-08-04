@@ -22,10 +22,13 @@ source=()
 sha256sums=()
 
 prepare() {
+  echo "Nothing to prepare"
 }
 
 build() {
+  echo "Nothing to build"
 }
 
 package() {
+  touch "${pkgdir}/${pkgname}"
 }
