@@ -1,5 +1,5 @@
 pkgname=psv-binutils
-pkgver=0.1
+pkgver=2.43
 pkgrel=1
 pkgdesc="Binutils and GDB with PS Vita patches applied."
 arch=(
@@ -11,24 +11,53 @@ arch=(
   "ubuntu_aarch64"
   "ubuntu_x86_64"
 )
-url="https://github.com/pspdev/binutils-gdb"
+url="https://github.com/PSVITADEV/psv-binutils-gnu"
 license=('GPL-2.0-only')
 groups=('psv-toolchain')
 depends=()
 makedepends=()
 optdepends=()
 provides=()
-source=()
-sha256sums=()
+source=(git+https://github.com/PSVITADEV/psv-binutils-gnu.git#commit=968eed953efa038807df7219d35e61d6522ed83d)
+sha256sums=("SKIP")
 
 prepare() {
-  echo "Nothing to prepare"
+  cd "${pkgname}"
+
+  TARG_XTRA_OPTS=""
+  if [ "$(uname -s)" = "Darwin" ]; then
+    TARG_XTRA_OPTS="--with-gmp=$(brew --prefix gmp) --with-mpfr=$(brew --prefix mpfr) --with-system-zlib"
+  fi
+
+  ./configure \
+    --target=psv \
+    --prefix="/" \
+    --with-sysroot="/psv" \
+    --disable-nls \
+    --disable-werror \
+    --disable-separate-code \
+    --enable-interwork \
+    --enable-plugins \
+    $TARG_XTRA_OPTS
 }
 
 build() {
-  echo "Nothing to build"
+  cd "${pkgname}"
+  make -j $(getconf _NPROCESSORS_ONLN) all
 }
 
 package() {
-  touch "${pkgdir}/${pkgname}"
+  cd "${pkgname}"
+  make DESTDIR="${pkgdir}" install
+
+  mkdir -m 755 -p "$pkgdir/share/licenses/$pkgname"
+  install -m 644 "COPYING" "$pkgdir/share/licenses/$pkgname"
+  install -m 644 "COPYING.LIB" "$pkgdir/share/licenses/$pkgname"
+  install -m 644 "COPYING.LIBGLOSS" "$pkgdir/share/licenses/$pkgname"
+  install -m 644 "COPYING.NEWLIB" "$pkgdir/share/licenses/$pkgname"
+  install -m 644 "COPYING3" "$pkgdir/share/licenses/$pkgname"
+  install -m 644 "COPYING3.LIB" "$pkgdir/share/licenses/$pkgname"
+  install -m 644 "MAINTAINERS" "$pkgdir/share/licenses/$pkgname"
+
+  rm -f "${pkgdir}/share/info/dir"
 }
