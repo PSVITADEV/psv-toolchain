@@ -49,9 +49,9 @@ prepare() {
   ./configure \
     --build=$HOST \
     --host=$HOST \
-    --target=psv \
+    --target=arm-psv-eabi \
     --prefix="/" \
-    --with-sysroot="/psv" \
+    --with-sysroot="/arm-psv-eabi" \
     --disable-nls \
     --disable-werror \
     --disable-separate-code \
