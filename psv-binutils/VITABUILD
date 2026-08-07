@@ -29,7 +29,26 @@ prepare() {
     TARG_XTRA_OPTS="--with-gmp=$(brew --prefix gmp) --with-mpfr=$(brew --prefix mpfr) --with-system-zlib"
   fi
 
+  HOST=""
+  if [ "$CARCH" = "alpine_x86_64" ]; then
+    HOST="x86_64-pc-linux-musl"
+  elif [ "$CARCH" = "debian_x86_64" ]; then
+    HOST="x86_64-pc-linux-gnu"
+  elif [ "$CARCH" = "fedora_x86_64" ]; then
+    HOST="x86_64-pc-linux-gnu"
+  elif [ "$CARCH" = "macos_arm64" ]; then
+    HOST="arm64-apple-darwin"
+  elif [ "$CARCH" = "macos_x86_64" ]; then
+    HOST="x86_64-apple-darwin"
+  elif [ "$CARCH" = "ubuntu_aarch64" ]; then
+    HOST="aarch64-pc-linux-gnu"
+  elif [ "$CARCH" = "ubuntu_x86_64" ]; then
+    HOST="x86_64-pc-linux-gnu"
+  fi
+
   ./configure \
+    --build=$HOST \
+    --host=$HOST \
     --target=psv \
     --prefix="/" \
     --with-sysroot="/psv" \
