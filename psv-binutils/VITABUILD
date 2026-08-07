@@ -62,7 +62,7 @@ prepare() {
 
 build() {
   cd "${pkgname}-gnu"
-  make -j $(getconf _NPROCESSORS_ONLN) all
+  make INFO_DEPS= DVIS= pdfs= htmls= -j $(getconf _NPROCESSORS_ONLN)
 }
 
 package() {
