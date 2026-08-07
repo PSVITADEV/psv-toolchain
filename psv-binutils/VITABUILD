@@ -72,8 +72,6 @@ package() {
   mkdir -m 755 -p "$pkgdir/share/licenses/$pkgname"
   install -m 644 "COPYING" "$pkgdir/share/licenses/$pkgname"
   install -m 644 "COPYING.LIB" "$pkgdir/share/licenses/$pkgname"
-  install -m 644 "COPYING.LIBGLOSS" "$pkgdir/share/licenses/$pkgname"
-  install -m 644 "COPYING.NEWLIB" "$pkgdir/share/licenses/$pkgname"
   install -m 644 "COPYING3" "$pkgdir/share/licenses/$pkgname"
   install -m 644 "COPYING3.LIB" "$pkgdir/share/licenses/$pkgname"
   install -m 644 "MAINTAINERS" "$pkgdir/share/licenses/$pkgname"
