@@ -22,7 +22,7 @@ source=(git+https://github.com/PSVITADEV/psv-binutils-gnu.git#commit=968eed953ef
 sha256sums=("SKIP")
 
 prepare() {
-  cd "${pkgname}"
+  cd "${pkgname}-gnu"
 
   TARG_XTRA_OPTS=""
   if [ "$(uname -s)" = "Darwin" ]; then
@@ -42,12 +42,12 @@ prepare() {
 }
 
 build() {
-  cd "${pkgname}"
+  cd "${pkgname}-gnu"
   make -j $(getconf _NPROCESSORS_ONLN) all
 }
 
 package() {
-  cd "${pkgname}"
+  cd "${pkgname}-gnu"
   make DESTDIR="${pkgdir}" install
 
   mkdir -m 755 -p "$pkgdir/share/licenses/$pkgname"
