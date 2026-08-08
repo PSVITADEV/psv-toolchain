@@ -46,19 +46,19 @@ jobs:
       if: startsWith(matrix.os, 'debian')
       run: |
         apt-get update
-        apt-get install -y wget adduser build-essential pkgconf curl libcurl4 libarchive-tools git sudo libgpgme11
+        apt-get install -y wget adduser build-essential pkgconf curl libcurl4 libarchive-tools git sudo libgpgme11 texinfo
         adduser --system --group build
 
     - name: Install Alpine build dependencies
       if: startsWith(matrix.os, 'alpine')
       run: |
-        apk add wget wget build-base bash pkgconfig libarchive-tools  git sudo fakeroot curl gpgme libarchive
+        apk add wget wget build-base bash pkgconfig libarchive-tools  git sudo fakeroot curl gpgme libarchive texinfo
         adduser -D -s /bin/bash build
 
     - name: Install Fedora build dependencies
       if: startsWith(matrix.os, 'fedora')
       run: |
-        dnf -y install gcc meson bsdtar pkgconf git sudo fakeroot curl gpgme
+        dnf -y install gcc meson bsdtar pkgconf git sudo fakeroot curl gpgme texinfo
         useradd build
 
     - uses: actions/checkout@v6
@@ -125,7 +125,7 @@ jobs:
     - name: Install Mac build dependencies
       if: startsWith(matrix.os, 'macos')
       run: |
-        brew install bash meson gnu-sed libarchive gpgme
+        brew install bash meson gnu-sed libarchive gpgme texinfo
 
     - uses: actions/checkout@v6
 
