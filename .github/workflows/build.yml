@@ -52,13 +52,13 @@ jobs:
     - name: Install Alpine build dependencies
       if: startsWith(matrix.os, 'alpine')
       run: |
-        apk add wget wget build-base bash pkgconfig libarchive-tools  git sudo fakeroot curl gpgme libarchive texinfo flex bison gmp-dev mpfr-dev
+        apk add wget wget build-base bash pkgconfig libarchive-tools  git sudo fakeroot curl gpgme libarchive texinfo flex bison gmp-dev mpfr-dev readline-dev
         adduser -D -s /bin/bash build
 
     - name: Install Fedora build dependencies
       if: startsWith(matrix.os, 'fedora')
       run: |
-        dnf -y install gcc meson bsdtar pkgconf git sudo fakeroot curl gpgme texinfo flex bison gmp-devel mpfr-devel
+        dnf -y install gcc meson bsdtar pkgconf git sudo fakeroot curl gpgme texinfo flex bison gmp-devel mpfr-devel readline-devel
         useradd build
 
     - uses: actions/checkout@v6
