@@ -125,7 +125,7 @@ jobs:
     - name: Install Mac build dependencies
       if: startsWith(matrix.os, 'macos')
       run: |
-        brew install bash meson gnu-sed libarchive gpgme texinfo
+        brew install bash meson gnu-sed libarchive gpgme texinfo readline
 
     - uses: actions/checkout@v6
 
