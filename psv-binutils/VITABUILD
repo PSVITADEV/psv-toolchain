@@ -18,11 +18,11 @@ depends=()
 makedepends=()
 optdepends=()
 provides=()
-source=(git+https://github.com/PSVITADEV/psv-binutils-gnu.git#commit=968eed953efa038807df7219d35e61d6522ed83d)
+source=(${pkgname}::git+https://github.com/PSVITADEV/psv-binutils-gnu.git#commit=968eed953efa038807df7219d35e61d6522ed83d)
 sha256sums=("SKIP")
 
 prepare() {
-  cd "${pkgname}-gnu"
+  cd "${pkgname}"
 
   TARG_XTRA_OPTS=""
   if [ "$(uname -s)" = "Darwin" ]; then
@@ -51,7 +51,7 @@ prepare() {
     --host=$HOST \
     --target=arm-psv-eabi \
     --prefix="/" \
-    --with-sysroot="/arm-psv-eabi" \
+    --with-sysroot="/psv" \
     --disable-nls \
     --disable-werror \
     --disable-separate-code \
@@ -61,12 +61,12 @@ prepare() {
 }
 
 build() {
-  cd "${pkgname}-gnu"
+  cd "${pkgname}"
   make INFO_DEPS= DVIS= pdfs= htmls= -j $(getconf _NPROCESSORS_ONLN)
 }
 
 package() {
-  cd "${pkgname}-gnu"
+  cd "${pkgname}"
   make DESTDIR="${pkgdir}" install
 
   mkdir -m 755 -p "$pkgdir/share/licenses/$pkgname"
