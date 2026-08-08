@@ -1,6 +1,6 @@
 pkgname=psv-binutils
 pkgver=2.43
-pkgrel=1
+pkgrel=2
 pkgdesc="Binutils and GDB with PS Vita patches applied."
 arch=(
   "alpine_x86_64"
@@ -18,7 +18,7 @@ depends=()
 makedepends=()
 optdepends=()
 provides=()
-source=(${pkgname}::git+https://github.com/PSVITADEV/psv-binutils-gnu.git#commit=968eed953efa038807df7219d35e61d6522ed83d)
+source=(${pkgname}::git+https://github.com/PSVITADEV/psv-binutils-gnu.git#branch=kermit-${pkgver})
 sha256sums=("SKIP")
 
 prepare() {
@@ -57,6 +57,7 @@ prepare() {
     --disable-separate-code \
     --enable-interwork \
     --enable-plugins \
+    --with-python="no" \
     $TARG_XTRA_OPTS
 }
 
